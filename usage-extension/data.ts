@@ -1047,7 +1047,7 @@ export function projectLabelFromCwd(cwd: string): string {
 	if (normalized === home || normalized.startsWith(home + "/")) {
 		homePrefix = home;
 	} else {
-		const m = /^(\/Users\/[^/]+|\/home\/[^/]+)(?=\/|$)/.exec(normalized);
+		const m = /^(\/Users\/[^/]+|\/home\/[^/]+|[A-Za-z]:\/Users\/[^/]+)(?=\/|$)/.exec(normalized);
 		if (m) homePrefix = m[1]!;
 	}
 	if (homePrefix !== null && normalized.length <= homePrefix.length) return "~";
@@ -1056,8 +1056,8 @@ export function projectLabelFromCwd(cwd: string): string {
 	if (wt !== -1) rel = rel.slice(0, wt);
 	const parts = rel.split("/").filter(Boolean);
 	if (homePrefix !== null) return `~/${parts.slice(0, 2).join("/")}`;
-	// Windows drive paths (C:/Users/rider/projects/foo): drop the drive segment so
-	// the label keeps meaningful segments (Users/rider) and stays slash-separated.
+	// Windows drive paths outside a home (D:/work/repo/sub): drop the drive segment
+	// so the label keeps meaningful segments (work/repo) and stays slash-separated.
 	const segments = /^[A-Za-z]:$/.test(parts[0] ?? "") ? parts.slice(1) : parts;
 	const label = segments.slice(0, 2).join("/");
 	if (/^[A-Za-z]:\//.test(normalized)) return label;
